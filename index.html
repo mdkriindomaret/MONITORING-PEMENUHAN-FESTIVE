@@ -141,6 +141,7 @@
         }
         .card.red { border-left-color: var(--red); }
         .card.yellow { border-left-color: var(--yellow); }
+        .card.green { border-left-color: #10b981; }
         .card-icon {
             width: 42px; height: 42px;
             border-radius: 10px;
@@ -151,6 +152,7 @@
         }
         .card.red .card-icon { background: #fdeaea; color: var(--red); }
         .card.yellow .card-icon { background: #fff6cc; color: #a88a00; }
+        .card.green .card-icon { background: #e6f9ed; color: #10b981; }
         .card-icon svg { width: 22px; height: 22px; }
         .card-label {
             font-size: .75rem;
@@ -443,13 +445,15 @@
                 <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg></div>
                 <div><div class="card-label">Ditampilkan</div><div class="card-value" id="stat-shown">–</div></div>
             </div>
-            <div class="card">
-                <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 3v18M19 3v18"/></svg></div>
-                <div><div class="card-label">Filter Aktif</div><div class="card-value" id="stat-filters">0</div></div>
+            <!-- Kartu Dinamis 1: Total PO -->
+            <div class="card green">
+                <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+                <div><div class="card-label">Total PO (Filtered)</div><div class="card-value small" id="stat-po">0%</div></div>
             </div>
+            <!-- Kartu Dinamis 2: Total BTB -->
             <div class="card red">
-                <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-                <div><div class="card-label">Update Terakhir</div><div class="card-value small" id="stat-updated">–</div></div>
+                <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+                <div><div class="card-label">Total BTB (Filtered)</div><div class="card-value small" id="stat-btb">0%</div></div>
             </div>
         </section>
 
@@ -492,7 +496,7 @@
             <div class="panel-footer" id="panel-footer">&nbsp;</div>
         </section>
 
-        <footer>Monitoring Pemenuhan Festive &middot; Indomaret &amp; Indogrosir</footer>
+        <footer>Monitoring Pemenuhan Festive &middot; Indomaret &amp; Indogrosir Cabang Kendari</footer>
     </main>
 
     <script>
@@ -563,22 +567,30 @@
 
             let group = '';
             columns = [];
+
+            // Kolom yang ingin ditampilkan di tabel utama (termasuk PRINCIPLE untuk filter supplier)
+            const allowedColumns = ['MCG', 'PLU', 'DESKRIPSI', 'PRINCIPLE', 'DEP', 'KAT', 'FLAG'];
+
             keys.forEach(k => {
                 const h = head[k], s = str(sub[k]);
                 const hs = typeof h === 'string' ? h.trim() : '';
                 if (hs) group = hs;
                 else if (typeof h !== 'string' || !s) group = '';
                 if (!hs && !s) return;
+                
                 const g = hs || group;
-                const m = meta[k];
-                columns.push({
-                    key: k,
-                    group: g,
-                    sub: g ? s : '',
-                    label: g || s,
-                    note: isDateStr(m) ? 'per ' + fmtDate(m) : (typeof m === 'string' ? m.trim() : ''),
-                    pct: /%/.test(s) || /%/.test(g),
-                });
+                
+                if (allowedColumns.includes(g.toUpperCase())) {
+                    const m = meta[k];
+                    columns.push({
+                        key: k,
+                        group: g,
+                        sub: g ? s : '',
+                        label: g || s,
+                        note: isDateStr(m) ? 'per ' + fmtDate(m) : (typeof m === 'string' ? m.trim() : ''),
+                        pct: /%/.test(s) || /%/.test(g),
+                    });
+                }
             });
 
             const body = data.slice(headerIdx + 2);
@@ -708,6 +720,35 @@
             return tr;
         }
 
+        function updateDynamicStats(filteredRows) {
+            // Hitung rata-rata atau persentase dari baris yang terfilter (misalnya mencari kolom yang mengandung kata PO atau BTB)
+            let totalPO = 0, totalBTB = 0, countPO = 0, countBTB = 0;
+
+            filteredRows.forEach(item => {
+                columns.forEach(c => {
+                    let colName = c.label.toUpperCase();
+                    let val = Number(item[c.key]);
+                    if (!isNaN(val)) {
+                        if (colName.includes('PO') && !colName.includes('TTL')) {
+                            totalPO += val;
+                            countPO++;
+                        }
+                        if (colName.includes('BTB')) {
+                            totalBTB += val;
+                            countBTB++;
+                        }
+                    }
+                });
+            });
+
+            // Jika ada data angka PO/BTB, hitung rata-rata persentasenya terhadap item terfilter
+            let avgPO = countPO > 0 ? (totalPO / countPO) : 0;
+            let avgBTB = countBTB > 0 ? (totalBTB / countBTB) : 0;
+
+            document.getElementById('stat-po').textContent = (avgPO > 1 ? avgPO.toFixed(1) + '%' : fmtPct.format(avgPO));
+            document.getElementById('stat-btb').textContent = (avgBTB > 1 ? avgBTB.toFixed(1) + '%' : fmtPct.format(avgBTB));
+        }
+
         function renderBody() {
             const query = searchInput.value.trim().toLowerCase();
             const active = Object.entries(filters).filter(([, v]) => v).map(([i, v]) => [columns[i], v.toLowerCase()]);
@@ -718,6 +759,10 @@
 
             document.getElementById('stat-shown').textContent = fmt.format(filtered.length);
             document.getElementById('stat-filters').textContent = active.length + (query ? 1 : 0);
+            
+            // Perbarui perhitungan kartu persentase PO & BTB secara otomatis berdasarkan data yang terfilter
+            updateDynamicStats(filtered);
+
             document.getElementById('panel-footer').textContent = (query || active.length)
                 ? `Menampilkan ${fmt.format(filtered.length)} dari ${fmt.format(rows.length)} item sesuai filter`
                 : `Menampilkan ${fmt.format(rows.length)} item`;
