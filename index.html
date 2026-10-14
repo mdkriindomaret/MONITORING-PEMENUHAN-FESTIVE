@@ -3,24 +3,432 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Monitoring Pemenuhan Festive</title>
+    <title>Monitoring Pemenuhan Festive 2026-2027</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --blue: #0057a8;
+            --blue-dark: #003f7d;
+            --red: #e3262b;
+            --yellow: #ffd200;
+            --bg: #f3f6fb;
+            --card: #ffffff;
+            --text: #1b2533;
+            --muted: #6b7789;
+            --border: #e3e8f0;
+            --row-alt: #f8fafd;
+            --row-hover: #fff8d6;
+            --radius: 14px;
+            --shadow: 0 1px 2px rgba(16, 32, 64, .06), 0 6px 20px rgba(16, 32, 64, .06);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== Header ===== */
+        .topbar {
+            background: linear-gradient(120deg, var(--blue-dark) 0%, var(--blue) 60%, #0a6cc7 100%);
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .topbar::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--red) 0 33.3%, var(--yellow) 33.3% 66.6%, var(--blue-dark) 66.6% 100%);
+        }
+        .topbar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 28px 24px 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .brand { display: flex; align-items: center; gap: 16px; }
+        .brand-mark {
+            width: 52px; height: 52px;
+            border-radius: 12px;
+            background: var(--yellow);
+            display: grid; place-items: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .18);
+            flex-shrink: 0;
+        }
+        .brand-mark svg { width: 28px; height: 28px; }
+        .brand h1 {
+            margin: 0;
+            font-size: clamp(1.2rem, 2.6vw, 1.75rem);
+            font-weight: 800;
+            letter-spacing: .3px;
+        }
+        .brand p {
+            margin: 4px 0 0;
+            font-size: .9rem;
+            font-weight: 500;
+            opacity: .85;
+            letter-spacing: .6px;
+        }
+        .header-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-btn:hover { background: var(--yellow); color: var(--text); border-color: var(--yellow); }
+        
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255, 255, 255, .14);
+            border: 1px solid rgba(255, 255, 255, .25);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: .82rem;
+            font-weight: 600;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #9aa5b4; }
+        .dot.ok { background: #3ddc84; box-shadow: 0 0 0 4px rgba(61, 220, 132, .25); }
+        .dot.err { background: var(--red); box-shadow: 0 0 0 4px rgba(227, 38, 43, .25); }
+        .dot.load { background: var(--yellow); animation: pulse 1s infinite alternate; }
+        @keyframes pulse { to { opacity: .35; } }
+
+        /* ===== Layout ===== */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+        }
+
+        /* ===== Summary cards ===== */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: -14px;
+            position: relative;
+            z-index: 1;
+        }
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-left: 4px solid var(--blue);
+        }
+        .card.red { border-left-color: var(--red); }
+        .card.yellow { border-left-color: var(--yellow); }
+        .card-icon {
+            width: 42px; height: 42px;
+            border-radius: 10px;
+            display: grid; place-items: center;
+            background: #e8f1fb;
+            color: var(--blue);
+            flex-shrink: 0;
+        }
+        .card.red .card-icon { background: #fdeaea; color: var(--red); }
+        .card.yellow .card-icon { background: #fff6cc; color: #a88a00; }
+        .card-icon svg { width: 22px; height: 22px; }
+        .card-label {
+            font-size: .75rem;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+        .card-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 2px;
+            line-height: 1.2;
+        }
+        .card-value.small { font-size: 1rem; font-weight: 700; }
+
+        /* ===== Panel / toolbar ===== */
+        .panel {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-top: 22px;
+            overflow: hidden;
+        }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .toolbar h2 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+        .toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; flex: 1; justify-content: flex-end; }
+        .search {
+            position: relative;
+            flex: 1;
+            max-width: 360px;
+            min-width: 200px;
+        }
+        .search svg {
+            position: absolute;
+            left: 12px; top: 50%;
+            transform: translateY(-50%);
+            width: 18px; height: 18px;
+            color: var(--muted);
+            pointer-events: none;
+        }
+        .search input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font: inherit;
+            font-size: .9rem;
+            background: #fbfcfe;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .search input:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(0, 87, 168, .15);
+            background: #fff;
+        }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            background: var(--red);
+            color: #fff;
+            font: inherit;
+            font-size: .9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s, transform .1s;
+        }
+        .btn:hover { background: #c81e23; }
+        .btn:active { transform: scale(.97); }
+        .btn:disabled { opacity: .6; cursor: progress; }
+        .btn svg { width: 18px; height: 18px; }
+        .btn.spinning svg { animation: spin .8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .btn.ghost { background: #eef2f8; color: var(--text); }
+        .btn.ghost:hover { background: #e1e7f1; }
+
+        /* ===== Keterangan & catatan ===== */
+        .info {
+            display: grid;
+            grid-template-columns: minmax(280px, 1fr) minmax(280px, 1.4fr);
+            gap: 16px;
+            margin-top: 22px;
+        }
+        .info-box {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px 20px;
+        }
+        .info-box h3 {
+            margin: 0 0 12px;
+            font-size: .78rem;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+        .legend li {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: .85rem;
+            font-weight: 700;
+        }
+        .legend .lg-green { background: #92d050; color: #1b2533; }
+        .legend .lg-orange { background: #ffc000; color: #1b2533; }
+        .legend .lg-red { background: #fff; color: #ff0000; border: 1px dashed #ffb3b3; }
+        .notes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+        }
+        .note {
+            background: #f6f9fd;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+        .note-label { font-size: .72rem; font-weight: 700; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; }
+        .note-value { font-size: 1.35rem; font-weight: 800; color: var(--blue); margin-top: 2px; }
+        .muted { color: var(--muted); font-size: .85rem; }
+
+        /* ===== Table ===== */
+        .table-wrap {
+            overflow: auto;
+            max-height: calc(100vh - 180px);
+            min-height: 280px;
+        }
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: .84rem;
+            min-width: 100%;
+        }
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            background: var(--blue);
+            color: #fff;
+            text-align: center;
+            font-weight: 700;
+            font-size: .72rem;
+            letter-spacing: .4px;
+            padding: 9px 12px;
+            white-space: nowrap;
+            border-right: 1px solid rgba(255, 255, 255, .18);
+            border-bottom: 1px solid rgba(255, 255, 255, .18);
+            vertical-align: middle;
+        }
+        thead tr.sub th { background: #0a4f94; font-size: .7rem; }
+        thead th small { display: block; font-weight: 500; font-size: .66rem; opacity: .8; margin-top: 2px; letter-spacing: 0; }
+        thead tr.filters th {
+            background: #1b2533;
+            padding: 6px;
+            border-bottom: 3px solid var(--yellow);
+        }
+        thead tr.filters input {
+            width: 100%;
+            min-width: 70px;
+            padding: 6px 8px;
+            border: 1px solid #3a4658;
+            border-radius: 6px;
+            background: #2a3546;
+            color: #fff;
+            font: inherit;
+            font-size: .75rem;
+        }
+        thead tr.filters input::placeholder { color: #8d99ab; }
+        thead tr.filters input:focus { outline: none; border-color: var(--yellow); background: #344155; }
+        thead tr.filters input.active { border-color: var(--yellow); background: #3d3a1f; }
+        tbody td, tfoot td {
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid #eef1f6;
+            white-space: nowrap;
+            background: #fff;
+        }
+        tbody tr:nth-child(even) td { background: var(--row-alt); }
+        tbody tr:hover td { background: var(--row-hover); }
+        tfoot td {
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            background: #fff6cc;
+            font-weight: 800;
+            border-top: 2px solid var(--yellow);
+        }
+        td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        td.neg { color: var(--red); }
+        td.idx, th.idx { color: var(--muted); text-align: center; width: 1%; }
+        thead th.idx { color: #fff; }
+        .frz { position: sticky; z-index: 1; }
+        thead th.frz { z-index: 4; }
+        tfoot td.frz { z-index: 3; }
+        .frz-last { box-shadow: 4px 0 6px -3px rgba(16, 32, 64, .18); }
+        mark { background: var(--yellow); color: inherit; border-radius: 3px; padding: 0 2px; }
+
+        .state {
+            padding: 48px 20px;
+            text-align: center;
+            color: var(--muted);
+            white-space: normal;
+        }
+        .state.error { color: var(--red); font-weight: 600; }
+        .spinner {
+            width: 30px; height: 30px;
+            border: 3px solid var(--border);
+            border-top-color: var(--blue);
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            animation: spin .8s linear infinite;
+        }
+
+        .panel-footer {
+            padding: 12px 20px;
+            font-size: .8rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+        }
+
+        footer {
+            text-align: center;
+            font-size: .78rem;
+            color: var(--muted);
+            margin-top: 24px;
+        }
+
+        @media (max-width: 640px) {
+            .topbar-inner { padding: 20px 16px 28px; }
+            main { padding: 0 12px 28px; }
+            .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .card { padding: 14px; gap: 10px; }
+            .card-icon { display: none; }
+            .card-value { font-size: 1.25rem; }
+            .toolbar { padding: 14px; }
+            .toolbar-actions { justify-content: stretch; }
+            .search { max-width: none; }
+            .btn { flex-shrink: 0; }
+            .table-wrap { max-height: 75vh; }
+            .info { grid-template-columns: 1fr; }
+            .frz { left: auto !important; }
+            .frz-last { box-shadow: none; }
+        }
+    </style>
 </head>
 <body>
 
     <header class="topbar">
         <div class="topbar-inner">
             <div class="brand">
-                <div class="brand-mark">📊</div>
+                <div class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#e3262b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+                </div>
                 <div>
-                    <h1>DASHBOARD MONITORING FESTIVE</h1>
-                    <p>Indomaret &amp; Indogrosir 2026-2027</p>
+                    <h1>MONITORING PEMENUHAN FESTIVE</h1>
+                    <p>SEASONAL INDOMARET &amp; INDOGROSIR 2026-2027</p>
                 </div>
             </div>
-            <div class="nav-links">
-                <a href="index.html" class="nav-btn active">📊 Ringkasan Dashboard</a>
-                <a href="upload.html" class="nav-btn">📤 Unggah Database Excel</a>
+            <div class="header-actions">
+                <a href="upload.html" class="nav-btn">📤 Menu Unggah Data Excel</a>
+                <div class="status-pill"><span class="dot load" id="status-dot"></span><span id="status-text">Memuat data…</span></div>
             </div>
         </div>
     </header>
@@ -28,96 +436,373 @@
     <main>
         <section class="cards">
             <div class="card">
-                <div class="card-label">Total Item Produk</div>
-                <div class="card-value" id="stat-total">–</div>
+                <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18"/></svg></div>
+                <div><div class="card-label">Total Item</div><div class="card-value" id="stat-total">–</div></div>
             </div>
             <div class="card yellow">
-                <div class="card-label">Total Principal</div>
-                <div class="card-value" id="stat-principal">–</div>
+                <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg></div>
+                <div><div class="card-label">Ditampilkan</div><div class="card-value" id="stat-shown">–</div></div>
             </div>
             <div class="card">
-                <div class="card-label">Departemen Terdaftar</div>
-                <div class="card-value" id="stat-dept">–</div>
+                <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 3v18M19 3v18"/></svg></div>
+                <div><div class="card-label">Filter Aktif</div><div class="card-value" id="stat-filters">0</div></div>
             </div>
             <div class="card red">
-                <div class="card-label">Status Koneksi</div>
-                <div class="card-value" style="font-size: 1.1rem; color: #10b981;" id="stat-status">Terhubung Aktif</div>
+                <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+                <div><div class="card-label">Update Terakhir</div><div class="card-value small" id="stat-updated">–</div></div>
+            </div>
+        </section>
+
+        <section class="info">
+            <div class="info-box">
+                <h3>Keterangan</h3>
+                <ul class="legend" id="legend"><li class="muted">Memuat…</li></ul>
+            </div>
+            <div class="info-box">
+                <h3>Catatan Pencapaian</h3>
+                <div class="notes" id="notes"><span class="muted">Memuat…</span></div>
             </div>
         </section>
 
         <section class="panel">
             <div class="toolbar">
-                <h2>Data Master Produk</h2>
-                <div class="search">
-                    <input type="search" id="search" placeholder="Cari data produk atau PLU..." onkeyup="filterTable()" autocomplete="off">
+                <h2>Data Pemenuhan</h2>
+                <div class="toolbar-actions">
+                    <label class="search">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input type="search" id="search" placeholder="Cari di semua kolom…" aria-label="Cari data" autocomplete="off">
+                    </label>
+                    <button class="btn ghost" id="btn-reset" type="button">Reset Filter</button>
+                    <button class="btn" id="btn-refresh" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+                        Refresh
+                    </button>
                 </div>
             </div>
-            <div class="table-wrap">
+
+            <div class="table-wrap" id="table-wrap">
                 <table id="tabel-data">
                     <thead id="tabel-head"></thead>
                     <tbody id="tabel-body">
-                        <tr><td colspan="100%" style="text-align: center; padding: 40px; color: #6b7789;">Memuat data dari server...</td></tr>
+                        <tr><td colspan="100%" class="state"><div class="spinner"></div>Memuat data dari server...</td></tr>
                     </tbody>
+                    <tfoot id="tabel-foot"></tfoot>
                 </table>
             </div>
+            <div class="panel-footer" id="panel-footer">&nbsp;</div>
         </section>
+
+        <footer>Monitoring Pemenuhan Festive &middot; Indomaret &amp; Indogrosir</footer>
     </main>
 
     <script>
         const apiURL = 'https://script.google.com/macros/s/AKfycbwFuBr8bsJmEFbpcgIoYyPfzEUIy2vePUftdWPrNMph6c9-yRsocVlqHh4KAVWGGZYB6Q/exec';
-        let globalData = [];
-        let globalColumns = [];
 
-        fetch(apiURL)
-            .then(res => res.json())
-            .then(data => {
-                if (!Array.isArray(data) || data.length === 0) return;
-                globalData = data;
-                globalColumns = Object.keys(data[0]);
+        const FROZEN_COLS = 3;
+        const LEGEND_CLASSES = ['lg-green', 'lg-orange', 'lg-red'];
 
-                document.getElementById('stat-total').textContent = data.length.toLocaleString('id-ID');
-                document.getElementById('stat-principal').textContent = new Set(data.map(i => i['PRINCIPLE'])).size;
-                document.getElementById('stat-dept').textContent = new Set(data.map(i => i['DEP'])).size;
+        const thead = document.getElementById('tabel-head');
+        const tbody = document.getElementById('tabel-body');
+        const tfoot = document.getElementById('tabel-foot');
+        const searchInput = document.getElementById('search');
+        const btnRefresh = document.getElementById('btn-refresh');
+        const btnReset = document.getElementById('btn-reset');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        const fmt = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
+        const fmtPct = new Intl.NumberFormat('id-ID', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 2 });
 
-                renderTable(data);
-            })
-            .catch(err => {
-                document.getElementById('stat-status').textContent = 'Gagal Terhubung';
-                document.getElementById('stat-status').style.color = '#e3262b';
-            });
+        let columns = [];
+        let rows = [];
+        let totalRow = null;
+        let filters = {};
 
-        function renderTable(data) {
-            const thead = document.getElementById('tabel-head');
-            const tbody = document.getElementById('tabel-body');
-            thead.innerHTML = '';
-            tbody.innerHTML = '';
+        function setStatus(state, text) {
+            statusDot.className = 'dot ' + state;
+            statusText.textContent = text;
+        }
 
-            let trHead = document.createElement('tr');
-            globalColumns.forEach(col => {
-                let th = document.createElement('th');
-                th.textContent = col;
-                trHead.appendChild(th);
-            });
-            thead.appendChild(trHead);
+        function showMessage(html, cls = '') {
+            tbody.innerHTML = '<tr><td colspan="100%" class="state ' + cls + '">' + html + '</td></tr>';
+        }
 
-            data.forEach(item => {
-                let tr = document.createElement('tr');
-                globalColumns.forEach(col => {
-                    let td = document.createElement('td');
-                    td.textContent = item[col] !== undefined ? item[col] : '';
-                    tr.appendChild(td);
+        const str = v => (v === undefined || v === null) ? '' : String(v).trim();
+        const isDateStr = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(v);
+        const fmtDate = v => new Date(v).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+
+        function formatCell(value, col) {
+            if (value === '' || value === null || value === undefined) return '';
+            if (typeof value === 'number') return col.pct ? fmtPct.format(value) : fmt.format(value);
+            if (isDateStr(value)) return fmtDate(value);
+            return String(value);
+        }
+
+        function parseSheet(data) {
+            const keys = Object.keys(data[0] || {});
+            const headerIdx = data.findIndex(r => str(r[keys[0]]).toUpperCase() === 'MCG');
+            if (headerIdx === -1) {
+                columns = keys.map(k => ({ key: k, group: k, sub: '', label: k, pct: false }));
+                rows = data;
+                totalRow = null;
+                return { legend: [], notes: [] };
+            }
+
+            const head = data[headerIdx];
+            const sub = data[headerIdx + 1] || {};
+            const meta = headerIdx > 0 ? data[headerIdx - 1] : {};
+            const top = data.slice(0, headerIdx);
+
+            const legendKey = keys.find(k => /ITEM/i.test(k)) || keys[2];
+            const legend = [legendKey, ...top.map(r => str(r[legendKey]))]
+                .filter(t => t && !/^Kolom_\d+\$/.test(t));
+
+            const notes = keys
+                .filter(k => !/^Kolom_\d+\$/.test(k) && k !== legendKey && !/KETERANGAN/i.test(k))
+                .map(k => ({ label: k, value: top[0] ? top[0][k] : '' }))
+                .filter(n => typeof n.value === 'number');
+
+            let group = '';
+            columns = [];
+            keys.forEach(k => {
+                const h = head[k], s = str(sub[k]);
+                const hs = typeof h === 'string' ? h.trim() : '';
+                if (hs) group = hs;
+                else if (typeof h !== 'string' || !s) group = '';
+                if (!hs && !s) return;
+                const g = hs || group;
+                const m = meta[k];
+                columns.push({
+                    key: k,
+                    group: g,
+                    sub: g ? s : '',
+                    label: g || s,
+                    note: isDateStr(m) ? 'per ' + fmtDate(m) : (typeof m === 'string' ? m.trim() : ''),
+                    pct: /%/.test(s) || /%/.test(g),
                 });
-                tbody.appendChild(tr);
+            });
+
+            const body = data.slice(headerIdx + 2);
+            totalRow = body.find(r => /GRAND TOTAL/i.test(str(r[keys[0]]))) || null;
+            rows = body.filter(r => r !== totalRow && str(r[keys[1]]) !== '' && !isNaN(str(r[keys[1]])));
+            return { legend, notes };
+        }
+
+        function renderInfo({ legend, notes }) {
+            const ul = document.getElementById('legend');
+            ul.innerHTML = '';
+            if (!legend.length) ul.innerHTML = '<li class="muted">Tidak ada keterangan.</li>';
+            legend.forEach((text, i) => {
+                const li = document.createElement('li');
+                li.className = LEGEND_CLASSES[i] || '';
+                li.textContent = text;
+                ul.appendChild(li);
+            });
+
+            const box = document.getElementById('notes');
+            box.innerHTML = '';
+            if (!notes.length) box.innerHTML = '<span class="muted">Tidak ada catatan.</span>';
+            notes.forEach(n => {
+                const el = document.createElement('div');
+                el.className = 'note';
+                el.innerHTML = '<div class="note-label"></div><div class="note-value"></div>';
+                el.querySelector('.note-label').textContent = n.label;
+                el.querySelector('.note-value').textContent = typeof n.value === 'number' ? fmtPct.format(n.value) : n.value;
+                box.appendChild(el);
             });
         }
 
-        function filterTable() {
-            let keyword = document.getElementById('search').value.toLowerCase();
-            let filtered = globalData.filter(item => 
-                Object.values(item).some(val => String(val).toLowerCase().includes(keyword))
-            );
-            renderTable(filtered);
+        function renderHeader() {
+            thead.innerHTML = '';
+            const hasSub = columns.some(c => c.sub);
+            const trTop = document.createElement('tr');
+            const trSub = document.createElement('tr');
+            trSub.className = 'sub';
+            const trFilter = document.createElement('tr');
+            trFilter.className = 'filters';
+
+            const thNo = document.createElement('th');
+            thNo.textContent = 'NO';
+            thNo.className = 'idx';
+            thNo.rowSpan = hasSub ? 2 : 1;
+            trTop.appendChild(thNo);
+            trFilter.appendChild(document.createElement('th'));
+
+            const addLabel = (th, text, note) => {
+                th.textContent = text.toUpperCase();
+                if (note) { const sm = document.createElement('small'); sm.textContent = note; th.appendChild(sm); }
+            };
+
+            for (let i = 0; i < columns.length; i++) {
+                const c = columns[i];
+                const th = document.createElement('th');
+                th.dataset.col = i;
+                if (!c.sub || !hasSub) {
+                    addLabel(th, c.label, c.note);
+                    if (hasSub) th.rowSpan = 2;
+                } else {
+                    let span = 1;
+                    while (columns[i + span] && columns[i + span].sub && columns[i + span].group === c.group) span++;
+                    th.colSpan = span;
+                    addLabel(th, c.group, columns.slice(i, i + span).find(x => x.note && /^per /.test(x.note))?.note);
+                    for (let j = i; j < i + span; j++) {
+                        const ths = document.createElement('th');
+                        ths.dataset.col = j;
+                        addLabel(ths, columns[j].sub, /^per /.test(columns[j].note) ? '' : columns[j].note);
+                        trSub.appendChild(ths);
+                    }
+                    i += span - 1;
+                }
+                trTop.appendChild(th);
+            }
+
+            columns.forEach((c, i) => {
+                const th = document.createElement('th');
+                th.dataset.col = i;
+                const input = document.createElement('input');
+                input.type = 'search';
+                input.placeholder = 'Filter…';
+                input.value = filters[i] || '';
+                input.classList.toggle('active', !!input.value);
+                input.addEventListener('input', debounce(() => {
+                    filters[i] = input.value.trim();
+                    input.classList.toggle('active', !!filters[i]);
+                    renderBody();
+                }, 200));
+                th.appendChild(input);
+                trFilter.appendChild(th);
+            });
+
+            thead.appendChild(trTop);
+            if (hasSub) thead.appendChild(trSub);
+            thead.appendChild(trFilter);
         }
+
+        function appendHighlighted(td, text, query) {
+            if (!query) { td.textContent = text; return; }
+            const lower = text.toLowerCase();
+            let pos = 0, idx;
+            while ((idx = lower.indexOf(query, pos)) !== -1) {
+                td.appendChild(document.createTextNode(text.slice(pos, idx)));
+                const mark = document.createElement('mark');
+                mark.textContent = text.slice(idx, idx + query.length);
+                td.appendChild(mark);
+                pos = idx + query.length;
+            }
+            td.appendChild(document.createTextNode(text.slice(pos)));
+        }
+
+        function buildRow(item, no, query) {
+            const tr = document.createElement('tr');
+            const tdNo = document.createElement('td');
+            tdNo.className = 'idx';
+            tdNo.textContent = no;
+            tr.appendChild(tdNo);
+            columns.forEach((c, i) => {
+                const td = document.createElement('td');
+                td.dataset.col = i;
+                const raw = item[c.key];
+                if (typeof raw === 'number') td.className = raw < 0 ? 'num neg' : 'num';
+                appendHighlighted(td, formatCell(raw, c), query);
+                tr.appendChild(td);
+            });
+            return tr;
+        }
+
+        function renderBody() {
+            const query = searchInput.value.trim().toLowerCase();
+            const active = Object.entries(filters).filter(([, v]) => v).map(([i, v]) => [columns[i], v.toLowerCase()]);
+            const filtered = rows.filter(item =>
+                active.every(([c, v]) => formatCell(item[c.key], c).toLowerCase().includes(v)) &&
+                (!query || columns.some(c => formatCell(item[c.key], c).toLowerCase().includes(query)))
+            );
+
+            document.getElementById('stat-shown').textContent = fmt.format(filtered.length);
+            document.getElementById('stat-filters').textContent = active.length + (query ? 1 : 0);
+            document.getElementById('panel-footer').textContent = (query || active.length)
+                ? `Menampilkan ${fmt.format(filtered.length)} dari ${fmt.format(rows.length)} item sesuai filter`
+                : `Menampilkan ${fmt.format(rows.length)} item`;
+
+            tfoot.innerHTML = '';
+            if (totalRow) {
+                const tr = buildRow(totalRow, '', '');
+                tr.firstChild.textContent = '';
+                tfoot.appendChild(tr);
+            }
+
+            if (filtered.length === 0) {
+                showMessage((query || active.length) ? 'Tidak ada data yang cocok dengan filter.' : 'Tidak ada data ditemukan.');
+            } else {
+                const frag = document.createDocumentFragment();
+                filtered.forEach((item, i) => frag.appendChild(buildRow(item, i + 1, query)));
+                tbody.innerHTML = '';
+                tbody.appendChild(frag);
+            }
+            layoutSticky();
+        }
+
+        function layoutSticky() {
+            let top = 0;
+            [...thead.rows].forEach(tr => {
+                [...tr.cells].forEach(th => { th.style.top = top + 'px'; });
+                top += tr.getBoundingClientRect().height;
+            });
+        }
+
+        function debounce(fn, ms) {
+            let t;
+            return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+        }
+
+        function loadData() {
+            btnRefresh.disabled = true;
+            btnRefresh.classList.add('spinning');
+            setStatus('load', 'Memuat data…');
+            if (rows.length === 0) showMessage('<div class="spinner"></div>Memuat data dari server...');
+
+            fetch(apiURL)
+                .then(response => response.json())
+                .then(data => {
+                    if (!Array.isArray(data) || data.length === 0) {
+                        rows = []; columns = [];
+                        showMessage('Tidak ada data ditemukan.');
+                        setStatus('ok', 'Data terhubung');
+                        return;
+                    }
+                    const info = parseSheet(data);
+                    renderInfo(info);
+
+                    document.getElementById('stat-total').textContent = fmt.format(rows.length);
+                    document.getElementById('stat-updated').textContent = new Date().toLocaleString('id-ID', {
+                        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                    });
+
+                    renderHeader();
+                    renderBody();
+                    setStatus('ok', 'Data terhubung');
+                })
+                .catch(error => {
+                    console.error('Terjadi kesalahan:', error);
+                    setStatus('err', 'Gagal memuat');
+                    if (rows.length === 0) showMessage('Gagal memuat data. Silakan coba tekan tombol Refresh.', 'error');
+                })
+                .finally(() => {
+                    btnRefresh.disabled = false;
+                    btnRefresh.classList.remove('spinning');
+                });
+        }
+
+        searchInput.addEventListener('input', debounce(() => { if (columns.length) renderBody(); }, 150));
+        btnReset.addEventListener('click', () => {
+            filters = {};
+            searchInput.value = '';
+            thead.querySelectorAll('tr.filters input').forEach(inp => { inp.value = ''; inp.classList.remove('active'); });
+            if (columns.length) renderBody();
+        });
+        btnRefresh.addEventListener('click', loadData);
+        window.addEventListener('resize', debounce(layoutSticky, 150));
+
+        loadData();
     </script>
+
 </body>
 </html>

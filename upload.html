@@ -4,35 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unggah Database Excel - Monitoring Festive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --blue: #0057a8;
+            --blue-dark: #003f7d;
+            --red: #e3262b;
+            --yellow: #ffd200;
+            --bg: #f3f6fb;
+            --card: #ffffff;
+            --text: #1b2533;
+            --muted: #6b7789;
+            --border: #e3e8f0;
+            --radius: 14px;
+            --shadow: 0 1px 2px rgba(16, 32, 64, .06), 0 6px 20px rgba(16, 32, 64, .06);
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
+        .topbar {
+            background: linear-gradient(120deg, var(--blue-dark) 0%, var(--blue) 60%, #0a6cc7 100%);
+            color: #fff; position: relative; overflow: hidden;
+        }
+        .topbar::after {
+            content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 5px;
+            background: linear-gradient(90deg, var(--red) 0 33.3%, var(--yellow) 33.3% 66.6%, var(--blue-dark) 66.6% 100%);
+        }
+        .topbar-inner { max-width: 1400px; margin: 0 auto; padding: 28px 24px 34px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+        .brand h1 { margin: 0; font-size: 1.5rem; font-weight: 800; }
+        .brand p { margin: 4px 0 0; font-size: .9rem; opacity: .85; }
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff; padding: 9px 16px; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 0.85rem; transition: 0.2s;
+        }
+        .nav-btn:hover { background: var(--yellow); color: var(--text); border-color: var(--yellow); }
+        main { max-width: 800px; margin: 40px auto; padding: 0 24px; }
+        .panel { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 36px; }
+        .upload-box { border: 2px dashed var(--border); padding: 40px; text-align: center; border-radius: 12px; background: #fafbfc; margin-top: 24px; }
+        .upload-label { background: var(--blue); color: #fff; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; display: inline-block; transition: 0.2s; }
+        .upload-label:hover { background: var(--blue-dark); }
+        .alert { padding: 14px 18px; border-radius: 10px; margin-top: 20px; font-weight: 600; display: none; }
+        .alert.success { background: #e6f9ed; color: #10b981; border: 1px solid #10b981; }
+        .alert.error { background: #fde8e8; color: var(--red); border: 1px solid var(--red); }
+    </style>
 </head>
 <body>
 
     <header class="topbar">
         <div class="topbar-inner">
             <div class="brand">
-                <div class="brand-mark">📤</div>
-                <div>
-                    <h1>UNGGAH DATABASE EXCEL</h1>
-                    <p>Pembaruan Data Otomatis Spreadsheet</p>
-                </div>
+                <h1>MENU UNGGAH DATABASE EXCEL</h1>
+                <p>Pembaruan Otomatis Google Spreadsheet</p>
             </div>
-            <div class="nav-links">
-                <a href="index.html" class="nav-btn">📊 Ringkasan Dashboard</a>
-                <a href="upload.html" class="nav-btn active">📤 Unggah Database Excel</a>
+            <div>
+                <a href="index.html" class="nav-btn">📊 Kembali ke Dashboard Utama</a>
             </div>
         </div>
     </header>
 
     <main>
-        <section class="panel" style="padding: 40px;">
-            <h2 style="margin-top: 0;">Perbarui Database Google Spreadsheet</h2>
-            <p style="color: var(--muted); font-size: 0.95rem;">Pilih file laporan Excel (.xlsx) master Anda. Sistem akan langsung membaca dan memperbarui database secara instan tanpa perlu membuka Google Drive.</p>
+        <section class="panel">
+            <h2 style="margin-top: 0; font-size: 1.2rem;">Unggah File Laporan Excel (.xlsx)</h2>
+            <p style="color: var(--muted); font-size: 0.92rem;">Pilih file laporan master Anda. Sistem akan langsung memperbarui database secara instan.</p>
             
             <div class="upload-box">
-                <label class="upload-label" for="excel-file">Pilih File Excel (.xlsx)</label>
+                <label class="upload-label" for="excel-file">Pilih File Excel</label>
                 <input type="file" id="excel-file" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleFileUpload(event)">
                 <p style="margin-top: 15px; font-size: 0.9rem; color: var(--muted);" id="file-name">Belum ada file dipilih</p>
             </div>
@@ -65,7 +103,7 @@
                 })
                 .then(res => res.json())
                 .then(res => {
-                    showAlert('Berhasil! Database spreadsheet telah diperbarui. Silakan kembali ke Ringkasan Dashboard.', 'success');
+                    showAlert('Berhasil! Database spreadsheet telah diperbarui. Anda bisa kembali ke Dashboard Utama.', 'success');
                 })
                 .catch(err => {
                     showAlert('Gagal memperbarui database: ' + err, 'error');
