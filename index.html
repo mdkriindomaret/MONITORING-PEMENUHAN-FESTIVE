@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -271,8 +270,6 @@
         }
         .note-label { font-size: .72rem; font-weight: 700; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; }
         .note-value { font-size: 1.35rem; font-weight: 800; color: var(--blue); margin-top: 2px; }
-        .note-bar { height: 6px; border-radius: 99px; background: #e3e8f0; margin-top: 8px; overflow: hidden; }
-        .note-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--red), var(--yellow)); border-radius: 99px; }
         .muted { color: var(--muted); font-size: .85rem; }
 
         /* ===== Table ===== */
@@ -345,7 +342,6 @@
         td.neg { color: var(--red); }
         td.idx, th.idx { color: var(--muted); text-align: center; width: 1%; }
         thead th.idx { color: #fff; }
-        /* Kolom MCG, PLU, DESKRIPSI dibekukan saat digeser ke samping */
         .frz { position: sticky; z-index: 1; }
         thead th.frz { z-index: 4; }
         tfoot td.frz { z-index: 3; }
@@ -382,7 +378,6 @@
             margin-top: 24px;
         }
 
-        /* ===== Responsive ===== */
         @media (max-width: 640px) {
             .topbar-inner { padding: 20px 16px 28px; }
             main { padding: 0 12px 28px; }
@@ -481,12 +476,9 @@
     </main>
 
     <script>
-        // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
         const apiURL = 'https://script.google.com/macros/s/AKfycbwFuBr8bsJmEFbpcgIoYyPfzEUIy2vePUftdWPrNMph6c9-yRsocVlqHh4KAVWGGZYB6Q/exec';
 
-        // Jumlah kolom pertama (MCG, PLU, DESKRIPSI) yang dibekukan saat tabel digeser ke samping
         const FROZEN_COLS = 3;
-        // Warna keterangan sesuai urutan di spreadsheet
         const LEGEND_CLASSES = ['lg-green', 'lg-orange', 'lg-red'];
 
         const thead = document.getElementById('tabel-head');
@@ -500,10 +492,10 @@
         const fmt = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
         const fmtPct = new Intl.NumberFormat('id-ID', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 2 });
 
-        let columns = [];   // { key, group, sub, label, pct }
+        let columns = [];
         let rows = [];
         let totalRow = null;
-        let filters = {};   // indeks kolom -> teks filter
+        let filters = {};
 
         function setStatus(state, text) {
             statusDot.className = 'dot ' + state;
@@ -525,13 +517,10 @@
             return String(value);
         }
 
-        // Spreadsheet: baris atas berisi keterangan & catatan, lalu baris judul (MCG, PLU, ...),
-        // baris sub-judul (IDM / IGR / TOTAL), kemudian data item dan GRAND TOTAL.
         function parseSheet(data) {
             const keys = Object.keys(data[0] || {});
             const headerIdx = data.findIndex(r => str(r[keys[0]]).toUpperCase() === 'MCG');
             if (headerIdx === -1) {
-                // Format tidak dikenali: tampilkan apa adanya
                 columns = keys.map(k => ({ key: k, group: k, sub: '', label: k, pct: false }));
                 rows = data;
                 totalRow = null;
@@ -543,26 +532,23 @@
             const meta = headerIdx > 0 ? data[headerIdx - 1] : {};
             const top = data.slice(0, headerIdx);
 
-            // 1. Keterangan: kolom judul ke-3 (kunci) + baris-baris di bawahnya
             const legendKey = keys.find(k => /ITEM/i.test(k)) || keys[2];
             const legend = [legendKey, ...top.map(r => str(r[legendKey]))]
-                .filter(t => t && !/^Kolom_\d+$/.test(t));
+                .filter(t => t && !/^Kolom_\d+\$/.test(t));
 
-            // 2. Catatan: kolom yang punya label di baris paling atas (PO OUT, TTL ALL PO, BPB, EST. ACH)
             const notes = keys
-                .filter(k => !/^Kolom_\d+$/.test(k) && k !== legendKey && !/KETERANGAN/i.test(k))
+                .filter(k => !/^Kolom_\d+\$/.test(k) && k !== legendKey && !/KETERANGAN/i.test(k))
                 .map(k => ({ label: k, value: top[0] ? top[0][k] : '' }))
                 .filter(n => typeof n.value === 'number');
 
-            // 3. Kolom tabel dari baris judul + sub-judul
             let group = '';
             columns = [];
             keys.forEach(k => {
                 const h = head[k], s = str(sub[k]);
                 const hs = typeof h === 'string' ? h.trim() : '';
                 if (hs) group = hs;
-                else if (typeof h !== 'string' || !s) group = '';   // sel angka / kolom pemisah
-                if (!hs && !s) return;                               // lewati kolom pemisah kosong
+                else if (typeof h !== 'string' || !s) group = '';
+                if (!hs && !s) return;
                 const g = hs || group;
                 const m = meta[k];
                 columns.push({
@@ -577,7 +563,8 @@
 
             const body = data.slice(headerIdx + 2);
             totalRow = body.find(r => /GRAND TOTAL/i.test(str(r[keys[0]]))) || null;
-            rows = body.filter(r => r !== totalRow && columns.some(c => str(r[c.key]) !== ''));
+            // FILTER UTAMA: Hanya ambil baris yang benar-benar berisi data produk (memiliki PLU atau MCG angka)
+            rows = body.filter(r => r !== totalRow && str(r[keys[1]]) !== '' && !isNaN(str(r[keys[1]])));
             return { legend, notes };
         }
 
@@ -598,11 +585,9 @@
             notes.forEach(n => {
                 const el = document.createElement('div');
                 el.className = 'note';
-                const pct = Math.max(0, Math.min(1, n.value));
-                el.innerHTML = '<div class="note-label"></div><div class="note-value"></div><div class="note-bar"><span></span></div>';
+                el.innerHTML = '<div class="note-label"></div><div class="note-value"></div>';
                 el.querySelector('.note-label').textContent = n.label;
-                el.querySelector('.note-value').textContent = fmtPct.format(n.value);
-                el.querySelector('.note-bar span').style.width = (pct * 100) + '%';
+                el.querySelector('.note-value').textContent = typeof n.value === 'number' ? fmtPct.format(n.value) : n.value;
                 box.appendChild(el);
             });
         }
@@ -636,7 +621,6 @@
                     addLabel(th, c.label, c.note);
                     if (hasSub) th.rowSpan = 2;
                 } else {
-                    // Gabungkan kolom berurutan dengan judul grup yang sama
                     let span = 1;
                     while (columns[i + span] && columns[i + span].sub && columns[i + span].group === c.group) span++;
                     th.colSpan = span;
@@ -652,27 +636,20 @@
                 trTop.appendChild(th);
             }
 
-            // Baris filter: kotak kosong di bawah setiap judul kolom
             columns.forEach((c, i) => {
                 const th = document.createElement('th');
                 th.dataset.col = i;
                 const input = document.createElement('input');
                 input.type = 'search';
                 input.placeholder = 'Filter…';
-                input.setAttribute('aria-label', 'Filter ' + (c.sub ? c.group + ' ' + c.sub : c.label));
                 input.value = filters[i] || '';
                 input.classList.toggle('active', !!input.value);
-                input.setAttribute('list', 'dl-' + i);
-                const dl = document.createElement('datalist');
-                dl.id = 'dl-' + i;
-                const uniq = [...new Set(rows.map(r => formatCell(r[c.key], c)).filter(Boolean))];
-                if (uniq.length <= 50) uniq.sort().forEach(v => { const o = document.createElement('option'); o.value = v; dl.appendChild(o); });
                 input.addEventListener('input', debounce(() => {
                     filters[i] = input.value.trim();
                     input.classList.toggle('active', !!filters[i]);
                     renderBody();
                 }, 200));
-                th.append(input, dl);
+                th.appendChild(input);
                 trFilter.appendChild(th);
             });
 
@@ -744,28 +721,12 @@
             layoutSticky();
         }
 
-        // Atur posisi baris judul bertingkat & kolom beku agar tetap terlihat saat digulir
         function layoutSticky() {
             let top = 0;
             [...thead.rows].forEach(tr => {
                 [...tr.cells].forEach(th => { th.style.top = top + 'px'; });
                 top += tr.getBoundingClientRect().height;
             });
-
-            const firstRow = tbody.rows[0];
-            if (!firstRow || firstRow.cells.length < FROZEN_COLS + 1) return;
-            const lefts = [0];
-            for (let i = 0; i < FROZEN_COLS; i++) lefts.push(lefts[i] + firstRow.cells[i].getBoundingClientRect().width);
-
-            const table = document.getElementById('tabel-data');
-            table.querySelectorAll('.idx').forEach(el => { el.classList.add('frz'); el.style.left = '0px'; });
-            for (let i = 0; i < FROZEN_COLS; i++) {
-                table.querySelectorAll(`[data-col="${i}"]`).forEach(el => {
-                    el.classList.add('frz');
-                    el.classList.toggle('frz-last', i === FROZEN_COLS - 1);
-                    el.style.left = lefts[i + 1] + 'px';
-                });
-            }
         }
 
         function debounce(fn, ms) {
