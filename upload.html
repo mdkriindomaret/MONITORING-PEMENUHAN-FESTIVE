@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unggah Database Excel - Monitoring Festive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <div class="brand-mark">📤</div>
+                <div>
+                    <h1>UNGGAH DATABASE EXCEL</h1>
+                    <p>Pembaruan Data Otomatis Spreadsheet</p>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-btn">📊 Ringkasan Dashboard</a>
+                <a href="upload.html" class="nav-btn active">📤 Unggah Database Excel</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="panel" style="padding: 40px;">
+            <h2 style="margin-top: 0;">Perbarui Database Google Spreadsheet</h2>
+            <p style="color: var(--muted); font-size: 0.95rem;">Pilih file laporan Excel (.xlsx) master Anda. Sistem akan langsung membaca dan memperbarui database secara instan tanpa perlu membuka Google Drive.</p>
+            
+            <div class="upload-box">
+                <label class="upload-label" for="excel-file">Pilih File Excel (.xlsx)</label>
+                <input type="file" id="excel-file" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleFileUpload(event)">
+                <p style="margin-top: 15px; font-size: 0.9rem; color: var(--muted);" id="file-name">Belum ada file dipilih</p>
+            </div>
+
+            <div id="upload-alert" class="alert"></div>
+        </section>
+    </main>
+
+    <script>
+        const apiURL = 'https://script.google.com/macros/s/AKfycbwFuBr8bsJmEFbpcgIoYyPfzEUIy2vePUftdWPrNMph6c9-yRsocVlqHh4KAVWGGZYB6Q/exec';
+
+        function handleFileUpload(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+            document.getElementById('file-name').textContent = 'File dipilih: ' + file.name;
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let data = new Uint8Array(e.target.result);
+                let workbook = XLSX.read(data, {type: 'array'});
+                let firstSheet = workbook.SheetNames[0];
+                let worksheet = workbook.Sheets[firstSheet];
+                let jsonSheet = XLSX.utils.sheet_to_json(worksheet);
+
+                showAlert('Sedang mengunggah dan memperbarui database...', 'success');
+
+                fetch(apiURL, {
+                    method: 'POST',
+                    body: JSON.stringify(jsonSheet)
+                })
+                .then(res => res.json())
+                .then(res => {
+                    showAlert('Berhasil! Database spreadsheet telah diperbarui. Silakan kembali ke Ringkasan Dashboard.', 'success');
+                })
+                .catch(err => {
+                    showAlert('Gagal memperbarui database: ' + err, 'error');
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function showAlert(msg, type) {
+            let alertBox = document.getElementById('upload-alert');
+            alertBox.style.display = 'block';
+            alertBox.className = 'alert ' + type;
+            alertBox.textContent = msg;
+        }
+    </script>
+</body>
+</html>

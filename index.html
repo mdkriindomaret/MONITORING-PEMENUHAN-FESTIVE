@@ -3,161 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Executive Dashboard - Monitoring Festive</title>
+    <title>Dashboard Monitoring Pemenuhan Festive</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Library SheetJS untuk membaca file Excel langsung di browser -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        :root {
-            --blue: #0057a8; --blue-dark: #003f7d; --red: #e3262b; --yellow: #ffd200;
-            --bg: #f4f7f9; --card: #ffffff; --text: #1b2533; --muted: #6b7789; --border: #e3e8f0;
-        }
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
-        
-        /* Navigasi Header & Menu */
-        header { background: var(--blue-dark); color: #fff; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 4px solid var(--red); }
-        h1 { margin: 0; font-size: 1.4rem; font-weight: 800; }
-        .nav-menu { display: flex; gap: 10px; }
-        .nav-btn { background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .nav-btn.active, .nav-btn:hover { background: var(--yellow); color: var(--text); }
-
-        main { max-width: 1400px; margin: 24px auto; padding: 0 20px; }
-        .page { display: none; }
-        .page.active { display: block; }
-
-        /* Kartu Metrik Eksekutif (Mirip Referensi Gambar) */
-        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .metric-card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-top: 4px solid var(--blue); }
-        .metric-title { font-size: 0.75rem; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 0.5px; }
-        .metric-value { font-size: 1.8rem; font-weight: 800; margin-top: 6px; color: var(--text); }
-        
-        /* Panel & Tabel */
-        .panel { background: var(--card); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); overflow: hidden; margin-bottom: 24px; }
-        .panel-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .panel-header h2 { margin: 0; font-size: 1rem; font-weight: 700; }
-        
-        .table-wrap { overflow-x: auto; max-height: 500px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
-        th, td { padding: 12px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-        th { background: var(--blue); color: #fff; position: sticky; top: 0; z-index: 2; }
-        tr:hover td { background: #fafbfc; }
-
-        /* Form Upload */
-        .upload-box { border: 2px dashed var(--border); padding: 40px; text-align: center; border-radius: 12px; background: #fafbfc; margin-top: 20px; }
-        .upload-box input { display: none; }
-        .upload-label { display: inline-block; background: var(--blue); color: #fff; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .upload-label:hover { background: var(--blue-dark); }
-        .alert { padding: 12px 16px; border-radius: 8px; margin-top: 15px; font-weight: 600; display: none; }
-        .alert.success { background: #e6f9ed; color: #10b981; border: 1px solid #10b981; }
-        .alert.error { background: #fde8e8; color: var(--red); border: 1px solid var(--red); }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <div>
-            <h1>DASHBOARD MONITORING FESTIVE</h1>
-            <small style="opacity: 0.8;">Indomaret & Indogrosir 2026-2027</small>
-        </div>
-        <div class="nav-menu">
-            <button class="nav-btn active" onclick="switchPage('dashboard')">📊 Ringkasan Dashboard</button>
-            <button class="nav-btn" onclick="switchPage('upload')">📤 Unggah Database Excel</button>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <div class="brand-mark">📊</div>
+                <div>
+                    <h1>DASHBOARD MONITORING FESTIVE</h1>
+                    <p>Indomaret &amp; Indogrosir 2026-2027</p>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-btn active">📊 Ringkasan Dashboard</a>
+                <a href="upload.html" class="nav-btn">📤 Unggah Database Excel</a>
+            </div>
         </div>
     </header>
 
     <main>
-        <!-- HALAMAN 1: DASHBOARD UTAMA -->
-        <div id="page-dashboard" class="page active">
-            <div class="metrics-grid">
-                <div class="metric-card" style="border-top-color: var(--blue);">
-                    <div class="metric-title">Total Item Produk</div>
-                    <div class="metric-value" id="val-total">-</div>
-                </div>
-                <div class="metric-card" style="border-top-color: var(--yellow);">
-                    <div class="metric-title">Total Principal</div>
-                    <div class="metric-value" id="val-principal">-</div>
-                </div>
-                <div class="metric-card" style="border-top-color: var(--red);">
-                    <div class="metric-title">Departemen Terdaftar</div>
-                    <div class="metric-value" id="val-dept">-</div>
-                </div>
-                <div class="metric-card" style="border-top-color: #10b981;">
-                    <div class="metric-title">Status Koneksi</div>
-                    <div class="metric-value" style="font-size: 1.1rem; color: #10b981; margin-top: 10px;" id="val-status">Terhubung Aktif</div>
+        <section class="cards">
+            <div class="card">
+                <div class="card-label">Total Item Produk</div>
+                <div class="card-value" id="stat-total">–</div>
+            </div>
+            <div class="card yellow">
+                <div class="card-label">Total Principal</div>
+                <div class="card-value" id="stat-principal">–</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Departemen Terdaftar</div>
+                <div class="card-value" id="stat-dept">–</div>
+            </div>
+            <div class="card red">
+                <div class="card-label">Status Koneksi</div>
+                <div class="card-value" style="font-size: 1.1rem; color: #10b981;" id="stat-status">Terhubung Aktif</div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="toolbar">
+                <h2>Data Master Produk</h2>
+                <div class="search">
+                    <input type="search" id="search" placeholder="Cari data produk atau PLU..." onkeyup="filterTable()" autocomplete="off">
                 </div>
             </div>
-
-            <div class="panel">
-                <div class="panel-header">
-                    <h2>Data Master Produk</h2>
-                    <input type="text" id="search" placeholder="Cari data produk..." style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem;" onkeyup="filterTable()">
-                </div>
-                <div class="table-wrap">
-                    <table id="main-table">
-                        <thead id="table-head"></thead>
-                        <tbody id="table-body">
-                            <tr><td colspan="100%" style="text-align: center; padding: 40px; color: var(--muted);">Memuat data dari server...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-wrap">
+                <table id="tabel-data">
+                    <thead id="tabel-head"></thead>
+                    <tbody id="tabel-body">
+                        <tr><td colspan="100%" style="text-align: center; padding: 40px; color: #6b7789;">Memuat data dari server...</td></tr>
+                    </tbody>
+                </table>
             </div>
-        </div>
-
-        <!-- HALAMAN 2: MENU UPLOAD EXCEL OTOMATIS -->
-        <div id="page-upload" class="page">
-            <div class="panel" style="padding: 30px;">
-                <h2>Perbarui Database via Unggah File Excel</h2>
-                <p style="color: var(--muted); font-size: 0.9rem;">Pilih file laporan Excel (.xlsx) master Anda. Sistem akan secara otomatis memproses dan memperbarui data di Google Spreadsheet secara instan.</p>
-                
-                <div class="upload-box">
-                    <label class="upload-label" for="excel-file">Pilih File Excel (.xlsx)</label>
-                    <input type="file" id="excel-file" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event)">
-                    <p style="margin-top: 15px; font-size: 0.85rem; color: var(--muted);" id="file-name">Belum ada file dipilih</p>
-                </div>
-
-                <div id="upload-alert" class="alert"></div>
-            </div>
-        </div>
+        </section>
     </main>
 
     <script>
-        const apiURL = 'https://script.google.com/macros/s/AKfycbx6FJXU7gpKBcOuUPuOxT8L2WAwPxeZLF5uzN33cRVddS5TuVv9APJkAr4GqKAtPtdgaQ/exec'; // Ganti dengan URL Web App Apps Script Anda
+        const apiURL = 'https://script.google.com/macros/s/AKfycbwFuBr8bsJmEFbpcgIoYyPfzEUIy2vePUftdWPrNMph6c9-yRsocVlqHh4KAVWGGZYB6Q/exec';
         let globalData = [];
         let globalColumns = [];
 
-        function switchPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('page-' + pageId).classList.add('active');
-            event.target.classList.add('active');
-        }
+        fetch(apiURL)
+            .then(res => res.json())
+            .then(data => {
+                if (!Array.isArray(data) || data.length === 0) return;
+                globalData = data;
+                globalColumns = Object.keys(data[0]);
 
-        // Ambil Data untuk Dashboard
-        function loadDashboardData() {
-            fetch(apiURL)
-                .then(res => res.json())
-                .then(data => {
-                    if (!Array.isArray(data) || data.length === 0) return;
-                    globalData = data;
-                    globalColumns = Object.keys(data[0]);
+                document.getElementById('stat-total').textContent = data.length.toLocaleString('id-ID');
+                document.getElementById('stat-principal').textContent = new Set(data.map(i => i['PRINCIPLE'])).size;
+                document.getElementById('stat-dept').textContent = new Set(data.map(i => i['DEP'])).size;
 
-                    // Hitung metrik ringkasan
-                    document.getElementById('val-total').textContent = data.length.toLocaleString('id-ID');
-                    document.getElementById('val-principal').textContent = new Set(data.map(i => i['PRINCIPLE'])).size;
-                    document.getElementById('val-dept').textContent = new Set(data.map(i => i['DEP'])).size;
-
-                    renderTable(data);
-                })
-                .catch(err => {
-                    document.getElementById('val-status').textContent = 'Gagal Terhubung';
-                    document.getElementById('val-status').style.color = 'var(--red)';
-                });
-        }
+                renderTable(data);
+            })
+            .catch(err => {
+                document.getElementById('stat-status').textContent = 'Gagal Terhubung';
+                document.getElementById('stat-status').style.color = '#e3262b';
+            });
 
         function renderTable(data) {
-            const thead = document.getElementById('table-head');
-            const tbody = document.getElementById('table-body');
+            const thead = document.getElementById('tabel-head');
+            const tbody = document.getElementById('tabel-body');
             thead.innerHTML = '';
             tbody.innerHTML = '';
 
@@ -187,48 +118,6 @@
             );
             renderTable(filtered);
         }
-
-        // Proses Unggah Excel & Kirim ke Apps Script
-        function handleFileUpload(event) {
-            let file = event.target.files[0];
-            if (!file) return;
-            document.getElementById('file-name').textContent = 'File dipilih: ' + file.name;
-
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let data = new Uint8Array(e.target.result);
-                let workbook = XLSX.read(data, {type: 'array'});
-                let firstSheet = workbook.SheetNames[0];
-                let worksheet = workbook.Sheets[firstSheet];
-                let jsonSheet = XLSX.utils.sheet_to_json(worksheet);
-
-                showAlert('Sedang mengunggah dan memperbarui database...', 'success');
-
-                // Kirim data JSON hasil baca excel ke Apps Script via POST
-                fetch(apiURL, {
-                    method: 'POST',
-                    body: JSON.stringify(jsonSheet)
-                })
-                .then(res => res.json())
-                .then(res => {
-                    showAlert('Berhasil! Database spreadsheet telah diperbarui.', 'success');
-                    loadDashboardData(); // Muat ulang data dashboard
-                })
-                .catch(err => {
-                    showAlert('Gagal memperbarui database: ' + err, 'error');
-                });
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function showAlert(msg, type) {
-            let alertBox = document.getElementById('upload-alert');
-            alertBox.style.display = 'block';
-            alertBox.className = 'alert ' + type;
-            alertBox.textContent = msg;
-        }
-
-        loadDashboardData();
     </script>
 </body>
 </html>
