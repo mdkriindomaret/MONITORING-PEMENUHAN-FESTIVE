@@ -568,8 +568,7 @@
             let group = '';
             columns = [];
 
-            // Kolom yang ingin ditampilkan di tabel utama (termasuk PRINCIPLE untuk filter supplier)
-            const allowedColumns = ['MCG', 'PLU', 'DESKRIPSI', 'PRINCIPLE', 'DEP', 'KAT', 'FLAG'];
+            const allowedColumns = ['MCG', 'PLU', 'DESKRIPSI', 'PRINCIPLE', 'DEP', 'KAT', 'FLAG', 'PO', 'BTB'];
 
             keys.forEach(k => {
                 const h = head[k], s = str(sub[k]);
@@ -721,7 +720,6 @@
         }
 
         function updateDynamicStats(filteredRows) {
-            // Hitung rata-rata atau persentase dari baris yang terfilter (misalnya mencari kolom yang mengandung kata PO atau BTB)
             let totalPO = 0, totalBTB = 0, countPO = 0, countBTB = 0;
 
             filteredRows.forEach(item => {
@@ -741,7 +739,6 @@
                 });
             });
 
-            // Jika ada data angka PO/BTB, hitung rata-rata persentasenya terhadap item terfilter
             let avgPO = countPO > 0 ? (totalPO / countPO) : 0;
             let avgBTB = countBTB > 0 ? (totalBTB / countBTB) : 0;
 
@@ -760,7 +757,6 @@
             document.getElementById('stat-shown').textContent = fmt.format(filtered.length);
             document.getElementById('stat-filters').textContent = active.length + (query ? 1 : 0);
             
-            // Perbarui perhitungan kartu persentase PO & BTB secara otomatis berdasarkan data yang terfilter
             updateDynamicStats(filtered);
 
             document.getElementById('panel-footer').textContent = (query || active.length)
