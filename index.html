@@ -542,10 +542,10 @@
         function parseSheet(data) {
             const keys = Object.keys(data[0] || {});
             
-            // Pencarian baris header yang lebih fleksibel (mencari baris yang kolom pertamanya mengandung kata MCG)
+            // Pencarian baris header secara universal (mencari baris yang kolom pertamanya mengandung kata kunci data)
             const headerIdx = data.findIndex(r => {
                 const val = str(r[keys[0]]).toUpperCase();
-                return val.includes('MCG') || val === 'MCG';
+                return val.includes('MCG') || val.includes('PLU') || val.includes('NO');
             });
 
             if (headerIdx === -1) {
@@ -560,7 +560,7 @@
             const meta = headerIdx > 0 ? data[headerIdx - 1] : {};
             const top = data.slice(0, headerIdx);
 
-            const legendKey = keys.find(k => /ITEM/i.test(k)) || keys[2];
+            const legendKey = keys.find(k => /ITEM/i.test(k)) || keys[2] || keys[0];
             const legend = [legendKey, ...top.map(r => str(r[legendKey]))]
                 .filter(t => t && !/^Kolom_\d+\$/.test(t));
 
@@ -583,7 +583,8 @@
                 
                 const g = hs || group;
                 
-                if (allowedColumns.includes(g.toUpperCase())) {
+                // Jika allowedColumns kosong atau ingin menampilkan semua, sesuaikan. Di sini kita filter yang diizinkan
+                if (allowedColumns.length === 0 || allowedColumns.includes(g.toUpperCase())) {
                     const m = meta[k];
                     columns.push({
                         key: k,
