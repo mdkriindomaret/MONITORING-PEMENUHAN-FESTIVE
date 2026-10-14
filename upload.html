@@ -7,47 +7,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="config.js"></script>
     <style>
-        :root {
-            --blue: #0057a8;
-            --blue-dark: #003f7d;
-            --red: #e3262b;
-            --yellow: #ffd200;
-            --bg: #f3f6fb;
-            --card: #ffffff;
-            --text: #1b2533;
-            --muted: #6b7789;
-            --border: #e3e8f0;
-            --radius: 14px;
-            --shadow: 0 1px 2px rgba(16, 32, 64, .06), 0 6px 20px rgba(16, 32, 64, .06);
+        /* Panel cadangan data (khusus halaman ini) */
+        .backup.padded { padding: 20px 24px; }
+        .backup h2.title { font-size: 1rem; margin-bottom: 4px; }
+        .backup p.lead { font-size: .85rem; }
+        .backup-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+        .btn-outline {
+            background: #fff; color: var(--text); border: 1px solid var(--border);
+            padding: 9px 16px; border-radius: 10px; font: inherit; font-size: .85rem; font-weight: 700;
+            cursor: pointer; transition: .2s;
         }
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
-        .topbar {
-            background: linear-gradient(120deg, var(--blue-dark) 0%, var(--blue) 60%, #0a6cc7 100%);
-            color: #fff; position: relative; overflow: hidden;
-        }
-        .topbar::after {
-            content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 5px;
-            background: linear-gradient(90deg, var(--red) 0 33.3%, var(--yellow) 33.3% 66.6%, var(--blue-dark) 66.6% 100%);
-        }
-        .topbar-inner { max-width: 1400px; margin: 0 auto; padding: 28px 24px 34px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
-        .brand h1 { margin: 0; font-size: 1.5rem; font-weight: 800; }
-        .brand p { margin: 4px 0 0; font-size: .9rem; opacity: .85; }
-        .nav-btn {
-            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #fff; padding: 9px 16px; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 0.85rem; transition: 0.2s;
-        }
-        .nav-btn:hover { background: var(--yellow); color: var(--text); border-color: var(--yellow); }
-        main { max-width: 800px; margin: 40px auto; padding: 0 24px; }
-        .panel { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 36px; }
-        .upload-box { border: 2px dashed var(--border); padding: 40px; text-align: center; border-radius: 12px; background: #fafbfc; margin-top: 24px; }
-        .upload-label { background: var(--blue); color: #fff; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; display: inline-block; transition: 0.2s; }
-        .upload-label:hover { background: var(--blue-dark); }
-        .alert { padding: 14px 18px; border-radius: 10px; margin-top: 20px; font-weight: 600; display: none; }
-        .alert.success { background: #e6f9ed; color: #10b981; border: 1px solid #10b981; }
-        .alert.error { background: #fde8e8; color: var(--red); border: 1px solid var(--red); }
+        .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+        .btn-outline:disabled { opacity: .55; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -55,68 +30,301 @@
     <header class="topbar">
         <div class="topbar-inner">
             <div class="brand">
-                <h1>MENU UNGGAH DATABASE EXCEL</h1>
-                <p>Pembaruan Otomatis Google Spreadsheet</p>
+                <div class="brand-mark">📤</div>
+                <div>
+                    <h1>MENU UNGGAH DATABASE EXCEL</h1>
+                    <p>Pembaruan Otomatis Google Spreadsheet</p>
+                </div>
             </div>
-            <div>
-                <a href="index.html" class="nav-btn">📊 Kembali ke Dashboard Utama</a>
+            <div class="header-actions">
+                <a href="index.html" class="nav-btn">📊 Dashboard</a>
+                <a href="upload.html" class="nav-btn active">📤 Menu Unggah Data Excel</a>
             </div>
         </div>
     </header>
 
-    <main>
-        <section class="panel">
-            <h2 style="margin-top: 0; font-size: 1.2rem;">Unggah File Laporan Excel (.xlsx)</h2>
-            <p style="color: var(--muted); font-size: 0.92rem;">Pilih file laporan master Anda. Sistem akan langsung memperbarui database secara instan.</p>
-            
-            <div class="upload-box">
-                <label class="upload-label" for="excel-file">Pilih File Excel</label>
-                <input type="file" id="excel-file" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleFileUpload(event)">
-                <p style="margin-top: 15px; font-size: 0.9rem; color: var(--muted);" id="file-name">Belum ada file dipilih</p>
+    <main class="narrow">
+        <section class="panel padded" style="margin-top:0;">
+            <h2 class="title">Unggah File Laporan Excel (.xlsx)</h2>
+            <p class="lead">Pilih file laporan master Anda. Data pada sheet pertama akan menggantikan isi database di Google Spreadsheet, lalu Dashboard akan memuat ulang otomatis.</p>
+
+            <div class="upload-box" id="drop-zone">
+                <label class="upload-label" id="upload-label" for="excel-file">Pilih File Excel</label>
+                <input type="file" id="excel-file" accept=".xlsx,.xls,.csv" style="display:none;">
+                <p class="file-name" id="file-name">Belum ada file dipilih (atau seret file ke sini)</p>
             </div>
 
             <div id="upload-alert" class="alert"></div>
+            <p style="margin:18px 0 0;"><a href="index.html" class="nav-btn" style="background:var(--blue);border-color:var(--blue);">📊 Kembali ke Dashboard Utama</a></p>
+        </section>
+
+        <section class="panel padded backup" id="backup-panel">
+            <h2 class="title">Cadangan data</h2>
+            <p class="lead">Simpan seluruh data database ke satu file JSON, atau pulihkan dari file cadangan. Berguna untuk memindahkan data atau mengembalikan data sebelumnya.</p>
+            <div class="backup-actions">
+                <button type="button" class="btn-outline" id="btn-export">Ekspor data (JSON)</button>
+                <button type="button" class="btn-outline" id="btn-import">Impor data (JSON)</button>
+                <input type="file" id="json-file" accept=".json,application/json" style="display:none;">
+            </div>
+            <div id="backup-alert" class="alert"></div>
         </section>
     </main>
 
     <script>
-        const apiURL = 'https://script.google.com/macros/s/AKfycbwFuBr8bsJmEFbpcgIoYyPfzEUIy2vePUftdWPrNMph6c9-yRsocVlqHh4KAVWGGZYB6Q/exec';
+        const apiURL = APP_CONFIG.apiURL;
+        const input = document.getElementById('excel-file');
+        const dropZone = document.getElementById('drop-zone');
+        const label = document.getElementById('upload-label');
+        const btnExport = document.getElementById('btn-export');
+        const btnImport = document.getElementById('btn-import');
+        const jsonInput = document.getElementById('json-file');
 
-        function handleFileUpload(event) {
-            let file = event.target.files[0];
+        btnExport.addEventListener('click', exportData);
+        btnImport.addEventListener('click', () => jsonInput.click());
+        jsonInput.addEventListener('change', e => { importData(e.target.files[0]); e.target.value = ''; });
+
+        input.addEventListener('change', e => processFile(e.target.files[0]));
+
+        ['dragenter', 'dragover'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add('drag'); }));
+        ['dragleave', 'drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.remove('drag'); }));
+        dropZone.addEventListener('drop', e => processFile(e.dataTransfer.files[0]));
+
+        function setBusy(busy) {
+            label.classList.toggle('disabled', busy);
+            input.disabled = busy;
+            btnExport.disabled = busy;
+            btnImport.disabled = busy;
+        }
+
+        function processFile(file) {
             if (!file) return;
+            if (!/\.(xlsx|xls|csv)$/i.test(file.name)) {
+                showAlert('Format file tidak didukung. Gunakan .xlsx, .xls, atau .csv.', 'error');
+                return;
+            }
             document.getElementById('file-name').textContent = 'File dipilih: ' + file.name;
+            showAlert('Membaca file…', 'info');
+            setBusy(true);
 
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let data = new Uint8Array(e.target.result);
-                let workbook = XLSX.read(data, {type: 'array'});
-                let firstSheet = workbook.SheetNames[0];
-                let worksheet = workbook.Sheets[firstSheet];
-                let jsonSheet = XLSX.utils.sheet_to_json(worksheet);
-
-                showAlert('Sedang mengunggah dan memperbarui database...', 'success');
-
-                fetch(apiURL, {
-                    method: 'POST',
-                    body: JSON.stringify(jsonSheet)
-                })
-                .then(res => res.json())
-                .then(res => {
-                    showAlert('Berhasil! Database spreadsheet telah diperbarui. Anda bisa kembali ke Dashboard Utama.', 'success');
-                })
-                .catch(err => {
-                    showAlert('Gagal memperbarui database: ' + err, 'error');
-                });
+            const reader = new FileReader();
+            reader.onerror = () => { setBusy(false); showAlert('Gagal membaca file.', 'error'); };
+            reader.onload = e => {
+                let rows;
+                try {
+                    const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                    rows = buildRows(workbook.Sheets[workbook.SheetNames[0]]);
+                } catch (err) {
+                    setBusy(false);
+                    showAlert('File tidak dapat dibaca: ' + err.message, 'error');
+                    return;
+                }
+                if (!rows.length) {
+                    setBusy(false);
+                    showAlert('Sheet pertama kosong, tidak ada data untuk diunggah.', 'error');
+                    return;
+                }
+                const colCount = Object.keys(rows[0]).length;
+                if (!confirm('Database akan diganti dengan ' + rows.length.toLocaleString('id-ID') + ' baris x ' + colCount + ' kolom dari "' + file.name + '". Lanjutkan?')) {
+                    setBusy(false);
+                    showAlert('Unggahan dibatalkan. Database tidak diubah.', 'info');
+                    return;
+                }
+                upload(rows);
             };
             reader.readAsArrayBuffer(file);
         }
 
-        function showAlert(msg, type) {
-            let alertBox = document.getElementById('upload-alert');
-            alertBox.style.display = 'block';
-            alertBox.className = 'alert ' + type;
-            alertBox.textContent = msg;
+        // Teks sel persis seperti tampilan di spreadsheet (format angka, persen, tanggal), gaya Indonesia
+        function cellText(cell) {
+            if (!cell || cell.v === undefined || cell.v === null) return '';
+            let out;
+            if (cell.t === 'n') {
+                if (typeof cell.z === 'string' && XLSX.SSF.is_date(cell.z)) {
+                    try { return XLSX.SSF.format('dd-mmm-yy', cell.v); } catch (e) { /* lanjut ke format biasa */ }
+                }
+                out = String(cell.w !== undefined ? cell.w : cell.v);
+                // SheetJS memakai format US (1,234.5) -> ubah ke Indonesia (1.234,5)
+                if (/^[\s\-\d.,%()]+$/.test(out)) out = out.replace(/[.,]/g, m => (m === '.' ? ',' : '.'));
+            } else {
+                out = String(cell.w !== undefined ? cell.w : cell.v);
+            }
+            return out.trim();
+        }
+
+        // Baca sheet: cari baris judul (berisi MCG/PLU), gabungkan judul 2 tingkat menjadi "GRUP | SUB",
+        // lalu ambil baris data di bawahnya. Baris ringkasan di atas judul diabaikan.
+        function buildRows(sheet) {
+            if (!sheet || !sheet['!ref']) return [];
+            const range = XLSX.utils.decode_range(sheet['!ref']);
+            const get = (r, c) => cellText(sheet[XLSX.utils.encode_cell({ r: r, c: c })]);
+
+            let hr = -1;
+            for (let r = range.s.r; r <= Math.min(range.e.r, range.s.r + 30) && hr < 0; r++) {
+                for (let c = range.s.c; c <= Math.min(range.e.c, range.s.c + 2); c++) {
+                    const t = get(r, c).toUpperCase();
+                    if (t === 'MCG' || t === 'PLU') { hr = r; break; }
+                }
+            }
+            if (hr < 0) hr = range.s.r;
+
+            // Judul 2 tingkat: baris di bawah judul punya isi, tetapi kolom pertamanya kosong (baris data selalu terisi)
+            let subCount = 0;
+            if (hr + 1 <= range.e.r) {
+                for (let c = range.s.c; c <= range.e.c; c++) if (get(hr + 1, c) !== '') subCount++;
+            }
+            const twoLevel = subCount > 0 && get(hr + 1, range.s.c) === '';
+
+            const cols = [];
+            const seen = {};
+            let lastGroup = '';
+            for (let c = range.s.c; c <= range.e.c; c++) {
+                const g = get(hr, c);
+                const s = twoLevel ? get(hr + 1, c) : '';
+                if (g) lastGroup = s ? g : '';
+                if (!g && !s) { lastGroup = ''; continue; }   // kolom pemisah kosong dilewati
+                let name;
+                if (twoLevel && s) {
+                    const grp = g || lastGroup;
+                    name = (grp && grp !== s) ? grp + ' | ' + s : s;
+                } else {
+                    name = g || s;
+                }
+                if (seen[name]) { seen[name]++; name = name + ' (' + seen[name] + ')'; } else { seen[name] = 1; }
+                cols.push({ c: c, name: name });
+            }
+
+            const rows = [];
+            for (let r = hr + (twoLevel ? 2 : 1); r <= range.e.r; r++) {
+                const obj = {};
+                let any = false;
+                cols.forEach(col => {
+                    const t = get(r, col.c);
+                    if (t !== '') any = true;
+                    obj[col.name] = t;
+                });
+                if (any) rows.push(obj);
+            }
+            return rows;
+        }
+
+        // Ekspor: ambil seluruh data dari database, simpan sebagai file JSON
+        function exportData() {
+            setBusy(true);
+            showBackupAlert('Mengambil data dari database…', 'info');
+
+            fetch(apiURL + (apiURL.includes('?') ? '&' : '?') + '_=' + Date.now(), { method: 'GET', redirect: 'follow' })
+                .then(res => {
+                    if (!res.ok) throw new Error('Server mengembalikan status ' + res.status);
+                    return res.text();
+                })
+                .then(text => {
+                    let raw;
+                    try { raw = JSON.parse(text); }
+                    catch (e) { throw new Error('Respons server bukan JSON. Periksa deployment Apps Script.'); }
+                    if (raw && raw.error) throw new Error(String(raw.error));
+
+                    let rows = Array.isArray(raw) ? raw : (raw && (raw.data || raw.rows || raw.values || raw.result));
+                    if (!Array.isArray(rows) || !rows.length) throw new Error('Database kosong, tidak ada data untuk diekspor.');
+                    if (Array.isArray(rows[0])) {   // bentuk array-of-array: baris pertama = judul
+                        const header = rows[0].map((h, i) => String(h || ('Kolom ' + (i + 1))).trim());
+                        rows = rows.slice(1).map(r => {
+                            const o = {};
+                            header.forEach((h, i) => { o[h] = r[i] !== undefined ? r[i] : ''; });
+                            return o;
+                        });
+                    }
+
+                    const payload = {
+                        app: 'monitoring-festive',
+                        version: 1,
+                        exportedAt: new Date().toISOString(),
+                        rows: rows.length,
+                        columns: Object.keys(rows[0]).length,
+                        data: rows
+                    };
+                    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'backup-festive-' + new Date().toLocaleDateString('sv-SE') + '.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+
+                    showBackupAlert('Berhasil! ' + rows.length.toLocaleString('id-ID') + ' baris diekspor ke file JSON.', 'success');
+                })
+                .catch(err => showBackupAlert('Gagal mengekspor data: ' + err.message, 'error'))
+                .finally(() => setBusy(false));
+        }
+
+        // Impor: baca file JSON cadangan, lalu ganti isi database dengan datanya
+        function importData(file) {
+            if (!file) return;
+            if (!/\.json$/i.test(file.name)) {
+                showBackupAlert('Pilih file cadangan berformat .json.', 'error');
+                return;
+            }
+            setBusy(true);
+            showBackupAlert('Membaca file cadangan…', 'info');
+
+            const reader = new FileReader();
+            reader.onerror = () => { setBusy(false); showBackupAlert('Gagal membaca file.', 'error'); };
+            reader.onload = e => {
+                let rows;
+                try {
+                    const raw = JSON.parse(e.target.result);
+                    rows = Array.isArray(raw) ? raw : (raw && raw.data);
+                    if (!Array.isArray(rows) || !rows.length) throw new Error('tidak ada data di dalam file');
+                    if (rows.some(r => !r || typeof r !== 'object' || Array.isArray(r))) throw new Error('isi file bukan daftar baris berbentuk objek');
+                } catch (err) {
+                    setBusy(false);
+                    showBackupAlert('File cadangan tidak valid: ' + err.message, 'error');
+                    return;
+                }
+                const colCount = Object.keys(rows[0]).length;
+                if (!confirm('Database akan diganti dengan ' + rows.length.toLocaleString('id-ID') + ' baris x ' + colCount + ' kolom dari "' + file.name + '". Lanjutkan?')) {
+                    setBusy(false);
+                    showBackupAlert('Impor dibatalkan. Database tidak diubah.', 'info');
+                    return;
+                }
+                upload(rows, showBackupAlert);
+            };
+            reader.readAsText(file);
+        }
+
+        // notify: fungsi untuk menampilkan pesan (default: pesan pada panel unggah Excel)
+        function upload(rows, notify) {
+            notify = notify || showAlert;
+            notify('Sedang mengunggah ' + rows.length.toLocaleString('id-ID') + ' baris dan memperbarui database…', 'info');
+
+            // text/plain (default untuk string) menghindari CORS preflight pada Apps Script
+            fetch(apiURL, { method: 'POST', redirect: 'follow', body: JSON.stringify(rows) })
+                .then(res => {
+                    if (!res.ok) throw new Error('Server mengembalikan status ' + res.status);
+                    return res.text();
+                })
+                .then(text => {
+                    let res;
+                    try { res = JSON.parse(text); }
+                    catch (e) { throw new Error('Respons server bukan JSON. Periksa deployment Apps Script.'); }
+                    if (res && res.error) throw new Error(String(res.error));
+
+                    try { localStorage.setItem(APP_CONFIG.syncKey, String(Date.now())); } catch (e) { /* abaikan */ }
+                    notify('Berhasil! Database spreadsheet telah diperbarui. Dashboard akan memuat data terbaru.', 'success');
+                })
+                .catch(err => notify('Gagal memperbarui database: ' + err.message, 'error'))
+                .finally(() => setBusy(false));
+        }
+
+        function showAlert(msg, type, id) {
+            const box = document.getElementById(id || 'upload-alert');
+            box.style.display = 'block';
+            box.className = 'alert ' + type;
+            box.textContent = msg;
+        }
+
+        function showBackupAlert(msg, type) {
+            showAlert(msg, type, 'backup-alert');
         }
     </script>
 </body>
